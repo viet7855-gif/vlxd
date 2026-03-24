@@ -80,13 +80,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($makhoCu) {
                 foreach ($chiTietCu as $ctCu) {
                     $stmtHoanTra = $pdo->prepare("
-                        UPDATE Tonkho 
+                        UPDATE Tonkho_nvl 
                         SET Soluongton = Soluongton - :sl
-                        WHERE Makho = :makho AND Masp = :masp AND Soluongton >= :sl_check
+                        WHERE Makho = :makho AND Manvl = :manvl AND Soluongton >= :sl_check
                     ");
                     $stmtHoanTra->execute([
                         ':makho' => $makhoCu,
-                        ':masp' => $ctCu['Masp'],
+                        ':manvl' => $ctCu['Manvl'],
                         ':sl' => $ctCu['Soluong'],
                         ':sl_check' => $ctCu['Soluong'],
                     ]);
@@ -126,13 +126,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Cập nhật tồn kho
                 $stmtTonkho = $pdo->prepare("
-                    INSERT INTO Tonkho (Makho, Masp, Soluongton) 
-                    VALUES (:makho, :masp, :sl)
+                    INSERT INTO Tonkho_nvl (Makho, Manvl, Soluongton) 
+                    VALUES (:makho, :manvl, :sl)
                     ON DUPLICATE KEY UPDATE Soluongton = Soluongton + :sl_update
                 ");
                 $stmtTonkho->execute([
                     ':makho' => $makho,
-                    ':masp' => $it['masp'],
+                    ':manvl' => $it['masp'],
                     ':sl' => $it['soluong'],
                     ':sl_update' => $it['soluong'],
                 ]);
