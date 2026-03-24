@@ -317,6 +317,17 @@ body{
         </li>
 
         <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)" id="btnSanXuat">
+                <i class="fas fa-cogs"></i> Sản xuất
+                <i class="fas fa-chevron-down float-end"></i>
+            </a>
+            <ul class="nav flex-column ms-3 d-none" id="submenuSanXuat">
+                <li class="nav-item"><a class="nav-link" href="danh_sach_lenh_san_xuat.php"><i class="fas fa-list"></i> Danh sách lệnh sản xuất</a></li>
+                <li class="nav-item"><a class="nav-link" href="lenh_san_xuat.php"><i class="fas fa-plus-circle"></i> Tạo lệnh sản xuất</a></li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link text-danger" href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
         </li>
     </ul>
