@@ -23,20 +23,20 @@ if (isset($_GET['xoa']) && !empty($_GET['xoa'])) {
             $makho = $phieuNhap['Makho'];
             
             // Lấy chi tiết phiếu nhập để cập nhật lại tồn kho
-            $chiTiet = $pdo->prepare("SELECT Masp, Soluong FROM Chitiet_Phieunhap WHERE Manhaphang = ?");
+            $chiTiet = $pdo->prepare("SELECT Manvl, Soluong FROM Chitiet_Phieunhap WHERE Manhaphang = ?");
             $chiTiet->execute([$manhap]);
             $chiTietRows = $chiTiet->fetchAll();
             
             // Giảm số lượng tồn kho
             foreach ($chiTietRows as $ct) {
                 $stmtTonkho = $pdo->prepare("
-                    UPDATE Tonkho 
+                    UPDATE Tonkho_nvl 
                     SET Soluongton = Soluongton - :sl
-                    WHERE Makho = :makho AND Masp = :masp AND Soluongton >= :sl_check
+                    WHERE Makho = :makho AND Manvl = :manvl AND Soluongton >= :sl_check
                 ");
                 $stmtTonkho->execute([
                     ':makho' => $makho,
-                    ':masp' => $ct['Masp'],
+                    ':manvl' => $ct['Manvl'],
                     ':sl' => $ct['Soluong'],
                     ':sl_check' => $ct['Soluong'],
                 ]);

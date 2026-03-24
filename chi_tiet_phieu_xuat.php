@@ -14,9 +14,10 @@ if (empty($maxuathang)) {
 }
 
 $phieuXuat = $pdo->prepare("
-    SELECT px.*, kh.Tenkh, kh.Sdtkh, kh.Diachikh
+    SELECT px.*, kh.Tenkh, kh.Sdtkh, kh.Diachikh, k.Tenkho
     FROM Phieuxuat px
     LEFT JOIN Khachhang kh ON px.Makh = kh.Makh
+    LEFT JOIN Kho k ON px.Makho = k.Makho
     WHERE px.Maxuathang = ?
 ");
 $phieuXuat->execute([$maxuathang]);
@@ -198,7 +199,7 @@ $chiTiet = $chiTiet->fetchAll();
     </div>
 
     <div class="bg-white-800 rounded-lg p-5 space-y-4">
-      <div class="grid md:grid-cols-2 gap-4">
+      <div class="grid md:grid-cols-3 gap-4">
         <div>
           <label class="block text-sm text-black-400 mb-1">Mã phiếu xuất</label>
           <div class="text-lg font-semibold"><?= htmlspecialchars($phieuXuat['Maxuathang']) ?></div>
@@ -206,6 +207,10 @@ $chiTiet = $chiTiet->fetchAll();
         <div>
           <label class="block text-sm text-black-400 mb-1">Mã khách hàng</label>
           <div class="text-lg font-semibold"><?= htmlspecialchars($phieuXuat['Makh']) ?></div>
+        </div>
+        <div>
+          <label class="block text-sm text-black-400 mb-1">Kho xuất</label>
+          <div class="text-lg font-semibold"><?= htmlspecialchars($phieuXuat['Tenkho']) ?></div>
         </div>
         <div>
           <label class="block text-sm text-black-400 mb-1">Ngày xuất</label>
@@ -216,7 +221,7 @@ $chiTiet = $chiTiet->fetchAll();
           <div class="text-2xl font-bold text-emerald-400"><?= number_format($phieuXuat['Tongtienxuat'], 0, ',', '.') ?> đ</div>
         </div>
         <?php if ($phieuXuat['Ghichu']): ?>
-          <div class="md:col-span-2">
+          <div class="md:col-span-3">
             <label class="block text-sm text-black-400 mb-1">Ghi chú</label>
             <div class="text-black-300"><?= nl2br(htmlspecialchars($phieuXuat['Ghichu'])) ?></div>
           </div>

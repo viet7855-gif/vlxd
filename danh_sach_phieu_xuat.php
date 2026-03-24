@@ -14,8 +14,8 @@ if (isset($_GET['xoa']) && !empty($_GET['xoa'])) {
     try {
         $pdo->beginTransaction();
         
-        // Lấy thông tin phiếu nhập để lấy Makh
-        $phieuXuat = $pdo->prepare("SELECT Makh FROM Phieuxuat WHERE Maxuathang = ?");
+        // Lấy thông tin phiếu xuất để lấy Makh và Makho
+        $phieuXuat = $pdo->prepare("SELECT Makh, Makho FROM Phieuxuat WHERE Maxuathang = ?");
         $phieuXuat->execute([$maxuat]);
         $phieuXuat = $phieuXuat->fetch();
 
@@ -32,11 +32,12 @@ $chiTietRows = $chiTiet->fetchAll();
 // CỘNG LẠI số lượng tồn kho
 foreach ($chiTietRows as $ct) {
     $stmtTonkho = $pdo->prepare("
-        UPDATE Tonkho 
+        UPDATE Tonkho_sp 
         SET Soluongton = Soluongton + :sl
-        WHERE Masp = :masp
+        WHERE Makho = :makho AND Masp = :masp
     ");
     $stmtTonkho->execute([
+        ':makho' => $phieuXuat['Makho'],
         ':masp' => $ct['Masp'],
         ':sl'   => $ct['Soluong'],
     ]);
@@ -77,12 +78,13 @@ $khachhangs = $pdo->query("
 
 // Xây dựng SQL với điều kiện lọc
 $sql = "
-SELECT DISTINCT px.*, kh.Tenkh,
+SELECT DISTINCT px.*, kh.Tenkh, k.Tenkho,
     (SELECT COUNT(*)
      FROM Chitiet_Phieuxuat ct2
      WHERE ct2.Maxuathang = px.Maxuathang) AS SoMatHang
 FROM Phieuxuat px
 LEFT JOIN Khachhang kh ON px.Makh = kh.Makh
+LEFT JOIN Kho k ON px.Makho = k.Makho
 LEFT JOIN Chitiet_Phieuxuat ct ON ct.Maxuathang = px.Maxuathang
 WHERE 1=1
 ";
@@ -373,6 +375,7 @@ $error = $_GET['error'] ?? '';
           <tr>
             <th class="px-4 py-3 text-left">Mã phiếu</th>
             <th class="px-4 py-3 text-left">Khách hàng</th>
+            <th class="px-4 py-3 text-left">Kho</th>
             <th class="px-4 py-3 text-left">Ngày xuất</th>
             <th class="px-4 py-3 text-right">Số mặt hàng</th>
             <th class="px-4 py-3 text-right">Tổng tiền</th>
@@ -382,12 +385,13 @@ $error = $_GET['error'] ?? '';
         </thead>
         <tbody>
           <?php if (empty($phieuXuats)): ?>
-            <tr><td colspan="8" class="px-4 py-4 text-center text-black-400">Chưa có phiếu xuất nào.</td></tr>
+            <tr><td colspan="9" class="px-4 py-4 text-center text-black-400">Chưa có phiếu xuất nào.</td></tr>
           <?php else: ?>
             <?php foreach ($phieuXuats as $px): ?>
               <tr class="border-t border-slate-800 hover:bg-slate-700/50">
                 <td class="px-4 py-2 font-semibold"><?= htmlspecialchars($px['Maxuathang']) ?></td>
                 <td class="px-4 py-2"><?= htmlspecialchars($px['Tenkh'] ?? 'N/A') ?></td>
+                <td class="px-4 py-2"><?= htmlspecialchars($px['Tenkho'] ?? 'N/A') ?></td>
                 <td class="px-4 py-2"><?= date('d/m/Y', strtotime($px['Ngayxuat'])) ?></td>
                 <td class="px-4 py-2 text-right"><?= number_format($px['SoMatHang']) ?></td>
                 <td class="px-4 py-2 text-right font-semibold"><?= number_format($px['Tongtienxuat'], 0, ',', '.') ?> đ</td>

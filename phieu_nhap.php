@@ -11,7 +11,7 @@ $success = '';
 
 // Lấy dữ liệu dropdown
 $nhacungcaps = $pdo->query("SELECT Mancc, Tenncc FROM Nhacungcap ORDER BY Tenncc")->fetchAll();
-$sanphams = $pdo->query("SELECT Masp, Tensp, Dvt FROM Sanpham ORDER BY Tensp")->fetchAll();
+$sanphams = $pdo->query("SELECT Manvl AS Masp, Tennvl AS Tensp, Dvt FROM Nguyenvatlieu ORDER BY Tennvl")->fetchAll();
 $khos = $pdo->query("SELECT Makho, Tenkho FROM Kho ORDER BY Tenkho")->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -68,24 +68,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':ghichu' => $ghichu,
             ]);
 
-            $stmtCt = $pdo->prepare("INSERT INTO Chitiet_Phieunhap (Manhaphang, Masp, Soluong, Dongianhap) VALUES (:ma, :masp, :sl, :dg)");
+            $stmtCt = $pdo->prepare("INSERT INTO Chitiet_Phieunhap (Manhaphang, Manvl, Soluong, Dongianhap) VALUES (:ma, :manvl, :sl, :dg)");
             foreach ($items as $it) {
                 $stmtCt->execute([
                     ':ma' => $manhap,
-                    ':masp' => $it['masp'],
+                    ':manvl' => $it['masp'],
                     ':sl' => $it['soluong'],
                     ':dg' => $it['dongia'],
                 ]);
                 
                 // Cập nhật tồn kho: INSERT ... ON DUPLICATE KEY UPDATE
                 $stmtTonkho = $pdo->prepare("
-                    INSERT INTO Tonkho (Makho, Masp, Soluongton) 
-                    VALUES (:makho, :masp, :sl)
+                    INSERT INTO Tonkho_nvl (Makho, Manvl, Soluongton) 
+                    VALUES (:makho, :manvl, :sl)
                     ON DUPLICATE KEY UPDATE Soluongton = Soluongton + :sl_update
                 ");
                 $stmtTonkho->execute([
                     ':makho' => $makho,
-                    ':masp' => $it['masp'],
+                    ':manvl' => $it['masp'],
                     ':sl' => $it['soluong'],
                     ':sl_update' => $it['soluong'],
                 ]);

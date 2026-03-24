@@ -22,12 +22,14 @@ $sanphams = $pdo->query("
     ORDER BY Tensp
 ")->fetchAll();
 
+$khos = $pdo->query("SELECT Makho, Tenkho FROM Kho ORDER BY Tenkho")->fetchAll();
+
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $maxuat = trim($_POST['maxuathang'] ?? '');
     $makh = trim($_POST['makh'] ?? '');
- 
+    $makho = trim($_POST['makho'] ?? '');
     $ngayxuat = $_POST['ngayxuat'] ?? '';
     $ghichu = trim($_POST['ghichu'] ?? '');
 
@@ -36,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dongiaArr = $_POST['dongia'] ?? [];
 
     // Kiểm tra dữ liệu chính
-    if ($maxuat === '' || $makh === '' || $ngayxuat === '') {
-        $errors[] = 'Vui lòng nhập đầy đủ Mã xuất, Khách hàng, Ngày xuất.';
+    if ($maxuat === '' || $makh === '' || $makho === '' || $ngayxuat === '') {
+        $errors[] = 'Vui lòng nhập đầy đủ Mã xuất, Khách hàng, Kho, Ngày xuất.';
     }
 
     // Chuẩn hóa chi tiết sản phẩm
@@ -81,13 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Lưu phiếu xuất
         $stmtPhieu = $pdo->prepare("
             INSERT INTO Phieuxuat 
-            (Maxuathang, Makh, Ngayxuat, Tongtienxuat, Ghichu)
-            VALUES (:ma, :makh, :ngay, :tong, :ghichu)
+            (Maxuathang, Makh, Makho, Ngayxuat, Tongtienxuat, Ghichu)
+            VALUES (:ma, :makh, :makho, :ngay, :tong, :ghichu)
         ");
         $stmtPhieu->execute([
             ':ma'    => $maxuat,
             ':makh'  => $makh,
-            
+            ':makho' => $makho,
             ':ngay'  => $ngayxuat,
             ':tong'  => $tong,
             ':ghichu'=> $ghichu,
@@ -101,9 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
 
        $stmtTonkho = $pdo->prepare("
-    UPDATE Tonkho
+    UPDATE Tonkho_sp
     SET Soluongton = Soluongton - :sl
-    WHERE Masp = :masp
+    WHERE Makho = :makho AND Masp = :masp
 ");
 
 
@@ -119,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Trừ tồn kho
             $stmtTonkho->execute([
-                
+                ':makho' => $makho,
                 ':masp'  => $it['masp'],
                 ':sl'    => $it['soluong'],
             ]);
@@ -375,6 +377,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </select>
 </div>
 
+        <div>
+          <label class="block text-sm text-slate-300 mb-2">Kho *</label>
+          <select name="makho" required class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700">
+            <option value="">-- Chọn kho --</option>
+            <?php foreach ($khos as $k): ?>
+              <option value="<?= htmlspecialchars($k['Makho']) ?>"
+                <?= (($_POST['makho'] ?? '') === $k['Makho']) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($k['Tenkho']) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
         
       </div>
       <div class="grid md:grid-cols-1 gap-4">
