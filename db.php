@@ -1,7 +1,7 @@
 <?php
 // Cấu hình kết nối DB. Cập nhật thông tin cho môi trường của bạn.
 $dbHost = '127.0.0.1';
-$dbName = 'QuanLyKho';
+$dbName = 'vlxd';
 $dbUser = 'root';
 $dbPass = '';
 $dbCharset = 'utf8mb4';
